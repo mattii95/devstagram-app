@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Models\Post;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Gate;
 
 class PostController extends Controller
 {
@@ -59,5 +61,22 @@ class PostController extends Controller
             'post' => $post,
             'user' => $user
         ]);
+    }
+
+    public function destroy(Post $post) {
+        if (!Gate::allows('delete', $post)) {
+            abort(403);
+        }
+
+        // Eliminar la imagen
+        $pathImage = public_path('uploads/' . $post->image);
+
+        if (File::exists($pathImage)) {
+            unlink($pathImage);
+        }
+
+        $post->delete();
+
+        return redirect()->route('posts.index', auth()->user()->username);
     }
 }
