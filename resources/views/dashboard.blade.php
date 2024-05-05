@@ -28,15 +28,41 @@
                     @endauth
                 </div>
                 <p class="text-gray-800 text-sm mb-3 font-bold mt-5">
-                    0 <span class="font-normal">Followers</span>
+                    {{ $user->followers->count() }} 
+                    <span class="font-normal">@choice('follower|followers', $user->followers->count())</span>
                 </p>
                 <p class="text-gray-800 text-sm mb-3 font-bold">
-                    0 <span class="font-normal">Following</span>
+                    {{ $user->followings->count() }} 
+                    <span class="font-normal">following</span>
                 </p>
                 <p class="text-gray-800 text-sm mb-3 font-bold">
                     {{ $user->posts->count() }} 
                     <span class="font-normal">Posts</span>
                 </p>
+                @auth    
+                    @if ($user->id !== auth()->user()->id)
+                        @if(!$user->following(auth()->user()))
+                            <form action="{{ route('users.follow', $user) }}" method="POST">
+                                @csrf
+                                <input
+                                    type="submit"
+                                    class="bg-blue-600 text-white uppercase rounded-lg px-3 py-1 text-xs font-bold cursor-pointer"
+                                    value="Follow"
+                                />
+                            </form>
+                        @else
+                            <form action="{{ route('users.unfollow', $user) }}" method="POST">
+                                @csrf
+                                @method('DELETE')
+                                <input
+                                    type="submit"
+                                    class="bg-red-600 text-white uppercase rounded-lg px-3 py-1 text-xs font-bold cursor-pointer"
+                                    value="Unfollow"
+                                />
+                            </form>
+                        @endif
+                    @endif
+                @endauth
             </div>
         </div>
     </div>
